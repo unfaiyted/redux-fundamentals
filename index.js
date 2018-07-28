@@ -1,31 +1,5 @@
-const todo = {
-    type: 'ADD_TODO',
-        todo: {
-            id: 0,
-            name: "learn redux",
-            complete: false,
-        }
-    }
-//
-// const remove =   {
-//         type: 'REMOVE_TODO',
-//         id:0,`
-//
-//     };
 
-
-
-//pure function, predictable
-function todos(state = [], action) {
-    if(action.type === 'ADD_TODO') {
-        return state.concat([action.todo])
-    }
-
-    return state;
-}
-
-
-function createStore() {
+function createStore(reducer) {
 
     // This should have 4 parts
     // 1. state
@@ -51,7 +25,7 @@ function createStore() {
     // predictable manner as possible
     const dispatch = (action) => {
         // call todos?
-        state = todos(state, action)
+        state = reducer(state, action)
         // inform listeners state has updated via loop and invoke
         listeners.forEach((listener) => listener());
     };
@@ -65,7 +39,51 @@ function createStore() {
 
 
 
-const store = createStore();
+// APP CODE
+
+//pure function, predictable
+// Reducer function
+function todos(state = [], action) {
+    switch(action.type) {
+        case 'ADD_TODO':
+            return state.concat([action.todo]);
+        case 'REMOVE_TODO':
+            return state.filter((todo) => todo.id !== action.id);
+        case 'TOGGLE_TODO':
+            // Maps over the object and finds the matching one then uses object assign to create the opposite complete value
+            return state.map((todo) => todo.id !== action.id ? todo : Object.assign({},todo,{complete: !todo.complete}));
+        default:
+            return state
+    }
+}
+
+// goals reducer
+function goals(state = [], action) {
+    switch(action.type) {
+        case 'ADD_GOAL':
+            return state.concat([action.goal]);
+        case 'REMOVE_TODO':
+            return state.filter((goal) => goal.id !== goal.id);
+        default:
+            return state;
+    }
+}
+
+
+// root reducer
+function app (state = {} , action) {
+    return {
+        todos: todos(state.todos, action),
+        goals: goals(state.goals, action)
+    }
+}
+
+
+
+
+
+
+const store = createStore(app);
 
 store.dispatch({
     type: 'ADD_TODO',
