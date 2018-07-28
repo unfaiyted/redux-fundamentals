@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <title>Todo/Goals</title>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/redux/3.7.2/redux.min.js'></script>
+    <script src='https://unpkg.com/react@16.3.0-alpha.1/umd/react.development.js'></script>
+    <script src='https://unpkg.com/react-dom@16.3.0-alpha.1/umd/react-dom.development.js'></script>
+    <script src='https://unpkg.com/babel-standalone@6.15.0/babel.min.js'></script>
+
 </head>
 <body>
 
@@ -24,8 +28,9 @@
 </div>
 
 
+<hr/>
 
-
+<div id="app"></div>
 
 
 <script type="text/javascript">
@@ -82,23 +87,38 @@
 
 
     function checkAndDispatch(store, action) {
-        if(
-            action.type === ADD_TODO &&
-                action.todo.name.toLowerCase().indexOf('bitcoin') !== -1
-        ) {
-            return alert("Nope. Bitcoin will steal your MONIES!");
-        }
-
-        if(
-            action.type === ADD_GOAL &&
-            action.goal.name.toLowerCase().indexOf('bitcoin') !== -1
-        ) {
-            return alert("Nope. Bitcoin will steal your MONIES!");
-        }
 
 
-        return store.dispatch(action);
+    }
 
+
+    // Middleware function for redux
+    const checker = (store) => (next) => action => {
+             if(
+                    action.type === ADD_TODO &&
+                    action.todo.name.toLowerCase().indexOf('bitcoin') !== -1
+                ) {
+                    return alert("Nope. Bitcoin will steal your MONIES!");
+                }
+
+                if(
+                    action.type === ADD_GOAL &&
+                    action.goal.name.toLowerCase().indexOf('bitcoin') !== -1
+                ) {
+                    return alert("Nope. Bitcoin will steal your MONIES!");
+                }
+
+                return next(action);
+
+    };
+
+
+    const logger = (store) => (next) => (action) => {
+        console.group(action.type);
+        console.log('The action: ', action);
+        const result = next(action);
+        console.log('New State: ', store.getState());
+        console.groupEnd()
     }
 
 
@@ -136,7 +156,7 @@
     const store = Redux.createStore(Redux.combineReducers({
         todos,
         goals,
-    }));
+    }), Redux.applyMiddleware(checker, logger));
 
     store.subscribe(() => {
         const { goals, todos } = store.getState();
@@ -201,7 +221,7 @@
         const name = input.value;
         input.value = '';
 
-        checkAndDispatch(store, addTodoAction({
+        store.dispatch(addTodoAction({
                 id: generateId(),
                 name,
                 complete: false
@@ -215,8 +235,7 @@
         input.value = '';
 
 
-
-        checkAndDispatch(store, addGoalAction({
+        store.dispatch(addGoalAction({
             id: generateId(),
             name,
         }))
@@ -227,5 +246,62 @@
     document.getElementById('todoBtn').addEventListener('click', addTodo);
     document.getElementById('goalBtn').addEventListener('click', addGoal)
 </script>
+
+<script type="text/babel">
+
+    function List (props) {
+        return (
+            <ul>
+                <li>List</li>
+            </ul>
+        )
+    }
+
+
+    class Todos extends React.Component {
+        render() {
+            return(
+                <div>
+                    TODOS
+                    <List />
+                </div>
+            )
+
+        }
+    }
+
+
+    class Goals extends React.Component {
+        render() {
+            return(
+                <div>
+                    GOALS
+                    <List />
+                </div>
+            )
+
+        }
+    }
+
+
+    class App extends React.Component {
+        render() {
+            return (
+                <div>
+                    <Todos />
+                    <Goals />
+                </div>
+            )
+        }
+    }
+
+
+    ReactDOM.render(
+        <App />,
+        document.getElementById('app')
+    )
+
+</script>
+
 </body>
 </html>
