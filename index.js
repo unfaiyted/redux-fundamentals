@@ -40,16 +40,59 @@ function createStore(reducer) {
 
 
 // APP CODE
+const ADD_TODO = 'ADD_TODO';
+const REMOVE_TODO = 'REMOVE_TODO';
+const TOGGLE_TODO = 'TOGGLE_TODO';
+const ADD_GOAL = 'ADD_GOAL';
+const REMOVE_GOAL = 'REMOVE_GOAL';
+
+
+function addTodoAction(todo) {
+    return {
+        type: ADD_TODO,
+        todo,
+    }
+}
+
+function removeTodoAction (id) {
+    return {
+        type: REMOVE_TODO,
+        id,
+    }
+}
+
+function toggleTodoAction (id) {
+    return {
+        type: TOGGLE_TODO,
+        id,
+    }
+}
+
+
+function addGoalAction(goal) {
+    return {
+        type: ADD_GOAL,
+        goal,
+    }
+}
+
+function removeGoalAction(id) {
+    return {
+        type: REMOVE_GOAL,
+        id,
+    }
+}
+
 
 //pure function, predictable
 // Reducer function
 function todos(state = [], action) {
     switch(action.type) {
-        case 'ADD_TODO':
+        case ADD_TODO:
             return state.concat([action.todo]);
-        case 'REMOVE_TODO':
+        case REMOVE_TODO:
             return state.filter((todo) => todo.id !== action.id);
-        case 'TOGGLE_TODO':
+        case TOGGLE_TODO:
             // Maps over the object and finds the matching one then uses object assign to create the opposite complete value
             return state.map((todo) => todo.id !== action.id ? todo : Object.assign({},todo,{complete: !todo.complete}));
         default:
@@ -60,9 +103,9 @@ function todos(state = [], action) {
 // goals reducer
 function goals(state = [], action) {
     switch(action.type) {
-        case 'ADD_GOAL':
+        case ADD_GOAL:
             return state.concat([action.goal]);
-        case 'REMOVE_TODO':
+        case REMOVE_GOAL:
             return state.filter((goal) => goal.id !== goal.id);
         default:
             return state;
@@ -81,15 +124,31 @@ function app (state = {} , action) {
 
 
 
-
-
 const store = createStore(app);
 
 store.dispatch({
-    type: 'ADD_TODO',
+    type: ADD_TODO,
         todo: {
         id: 0,
             name: "learn redux",
             complete: false,
     }
 });
+
+store.dispatch(addTodoAction({
+    id:0,
+    name: "learn to do stuff",
+    complete: false
+    } )
+);
+
+store.dispatch(addTodoAction({
+        id:1,
+        name: "learn to do react stuff",
+        complete: false
+    } )
+);
+
+store.dispatch(removeTodoAction(1));
+
+store.dispatch(toggleTodoAction(0));
