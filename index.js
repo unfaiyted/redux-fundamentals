@@ -33,7 +33,8 @@ function createStore(reducer) {
     // user can access the stat when they create store
     return {
         getState,
-        subscribe
+        subscribe,
+        dispatch
     }
 }
 
@@ -122,23 +123,12 @@ function app (state = {} , action) {
 }
 
 
-
-
 const store = createStore(app);
 
-store.dispatch({
-    type: ADD_TODO,
-        todo: {
-        id: 0,
-            name: "learn redux",
-            complete: false,
-    }
-});
-
 store.dispatch(addTodoAction({
-    id:0,
-    name: "learn to do stuff",
-    complete: false
+        id:0,
+        name: "learn to do stuff",
+        complete: false
     } )
 );
 
@@ -152,3 +142,4 @@ store.dispatch(addTodoAction({
 store.dispatch(removeTodoAction(1));
 
 store.dispatch(toggleTodoAction(0));
+
