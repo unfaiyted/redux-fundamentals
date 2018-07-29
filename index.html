@@ -11,25 +11,6 @@
 </head>
 <body>
 
-
-<h1>Vanilla Version</h1>
-<div>
-    <h1>Todo List</h1>
-    <input id="todo" type="text" placeholder="Add todo">
-    <button id="todoBtn">Add Todo</button>
-    <ul id="todos"></ul>
-</div>
-
-<div>
-    <h1>Goals</h1>
-    <input id="goal" type="text" placeholder="Add goal">
-    <button id="goalBtn">Add Goal</button>
-    <ul id="goals"></ul>
-</div>
-
-
-<hr/>
-
 <div id="app"></div>
 
 
@@ -158,93 +139,7 @@
         goals,
     }), Redux.applyMiddleware(checker, logger));
 
-    store.subscribe(() => {
-        const { goals, todos } = store.getState();
 
-
-        document.getElementById('goals').innerHTML ='';
-        document.getElementById('todos').innerHTML ='';
-
-        goals.forEach(addGoalToDom);
-        todos.forEach(addTodoToDom);
-
-    });
-
-    // DOM CODE
-    function createRemoveButtion(onClick) {
-        const removeBtn = document.createElement('button');
-        removeBtn.innerHTML = 'X';
-        removeBtn.addEventListener('click', onClick);
-
-        return removeBtn;
-    }
-
-
-    function addTodoToDom(todo) {
-        const node = document.createElement('li');
-        const text = document.createTextNode(todo.name);
-
-        const removeBtn = createRemoveButtion(() => {
-            store.dispatch(removeTodoAction(todo.id))
-        });
-
-        node.appendChild(text);
-        node.appendChild(removeBtn);
-        node.style.textDecoration = todo.complete ? 'line-through' : 'none';
-        node.addEventListener('click', () => {
-            store.dispatch(toggleTodoAction(todo.id))
-        })
-
-        document.getElementById('todos')
-            .appendChild(node);
-    }
-
-    function addGoalToDom(goal) {
-        const node = document.createElement('li');
-        const text = document.createTextNode(goal.name);
-
-        const removeBtn = createRemoveButtion(() => {
-            store.dispatch(removeGoalAction(goal.id))
-        });
-
-        node.appendChild(text);
-        node.appendChild(removeBtn);
-
-        document.getElementById('goals')
-            .appendChild(node);
-    }
-
-
-
-    function addTodo() {
-        const input = document.getElementById('todo');
-        const name = input.value;
-        input.value = '';
-
-        store.dispatch(addTodoAction({
-                id: generateId(),
-                name,
-                complete: false
-            }));
-
-    }
-
-    function addGoal() {
-        const input = document.getElementById('goal');
-        const name = input.value;
-        input.value = '';
-
-
-        store.dispatch(addGoalAction({
-            id: generateId(),
-            name,
-        }))
-    }
-
-
-
-    document.getElementById('todoBtn').addEventListener('click', addTodo);
-    document.getElementById('goalBtn').addEventListener('click', addGoal)
 </script>
 
 <script type="text/babel">
