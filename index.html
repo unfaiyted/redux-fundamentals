@@ -18,19 +18,13 @@
 
 <script type="text/javascript">
 
-    // Functioin create fake id
-    function generateId () {
-        return Math.random().toString(36).substring(2) + (new Date()).getTime().toString(36);
-    }
-
-
     // APP CODE
     const ADD_TODO = 'ADD_TODO';
     const REMOVE_TODO = 'REMOVE_TODO';
     const TOGGLE_TODO = 'TOGGLE_TODO';
     const ADD_GOAL = 'ADD_GOAL';
     const REMOVE_GOAL = 'REMOVE_GOAL';
-    const RECEIVE_DATA = 'RECEIVE_DATA'
+    const RECEIVE_DATA = 'RECEIVE_DATA';
 
 
     function addTodoAction(todo) {
@@ -80,9 +74,27 @@
     }
 
 
-    function checkAndDispatch(store, action) {
+    function handleDeleteTodo(todo) {
+        return (dispatch) => {
+            dispatch(removeTodoAction(todo.id));
+            return API.deleteTodo(todo.id)
+                    .catch(() => {
+                // Readds on fail
+                dispatch(addTodoAction(todo));
+                alert("Error deleting");
+        })}
+    }
 
 
+    function handleDeleteGoal(goal) {
+        return (dispatch) => {
+            dispatch(removeGoalAction(goal.id));
+            return API.deleteGoal(goal.id)
+                .catch(() => {
+                    dispatch(addGoalAction(goal));
+                    alert("Error deleting goal");
+                })
+        }
     }
 
 
@@ -115,6 +127,15 @@
         console.groupEnd()
     }
 
+    // Thunk Middleware
+    const thunk = (store) => (next) => action => {
+        if (typeof action === 'function') {
+            return action(store.dispatch);
+        }
+
+        return next(action);
+    };
+
 
     //pure function, predictable
     // Reducer function
@@ -140,7 +161,7 @@
             case ADD_GOAL:
                 return state.concat([action.goal]);
             case REMOVE_GOAL:
-                return state.filter((goal) => goal.id !== goal.id);
+                return state.filter((goal) => goal.id !== action.id);
             case RECEIVE_DATA:
                 return action.goals;
             default:
@@ -163,7 +184,7 @@
         todos,
         goals,
         loading,
-    }), Redux.applyMiddleware(checker, logger));
+    }), Redux.applyMiddleware(checker, logger, thunk));
 
 
 </script>
@@ -198,13 +219,7 @@
 
         removeItem = (todo) => {
             //Instant feedback
-            this.props.store.dispatch(removeTodoAction(todo.id));
-            return API.deleteTodo(todo.id)
-                .catch(() => {
-                    // Readds on fail
-                    this.props.store.dispatch(addTodoAction(todo));
-                    alert("Error deleting");
-                })
+            this.props.store.dispatch(handleDeleteTodo(todo));
         };
 
         addItem = (e) => {
@@ -241,8 +256,8 @@
 
 
         removeItem = (goal) => {
-            this.props.store.dispatch(removeGoalAction(goal.id));
-            return API.deleteGoal(goal.id).catch(() => this.props.store.dispatch(addGoalAction(goal)))
+            this.props.store.dispatch(handleDeleteGoal(goal));
+
         };
 
         addItem = (e) => {
