@@ -8,6 +8,7 @@
     <script src='https://unpkg.com/react-dom@16.3.0-alpha.1/umd/react-dom.development.js'></script>
     <script src='https://unpkg.com/babel-standalone@6.15.0/babel.min.js'></script>
     <script src='https://tylermcginnis.com/goals-todos-api/index.js'></script>
+    <script src='https://unpkg.com/redux-thunk@2.2.0/dist/redux-thunk.min.js'></script>
 
 
 </head>
@@ -130,6 +131,18 @@
         }
     }
 
+
+    function handleInitialData() {
+        return (dispatch) => {
+           return Promise.all([
+                API.fetchTodos(),
+                API.fetchGoals(),
+            ]).then(([todos, goals]) => {
+                dispatch(receiveDataAction(todos, goals));
+
+            });
+        }
+    }
 
     // Middleware function for redux
     const checker = (store) => (next) => action => {
@@ -319,15 +332,13 @@
 
     class App extends React.Component {
         componentDidMount () {
-            const { store} = this.props;
+            const { store } = this.props;
 
-            Promise.all([
-                API.fetchTodos(),
-                API.fetchGoals(),
-            ]).then(([todos, goals]) => {
-                store.dispatch(receiveDataAction(todos, goals));
 
-            });
+
+            store.dispatch(handleInitialData());
+
+
 
             store.subscribe(() => this.forceUpdate())
         }
